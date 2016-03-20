@@ -11,8 +11,8 @@
 	}
 	h1{text-align: center;}
 	canvas{
-		background: green;
-		border: dotted 1px yellow;
+		/*background: green;*/
+		/*border: dotted 1px yellow;*/
 	}
 </style>
 
@@ -34,15 +34,17 @@
 			}
 		},
 		procesaImagen: function(){
-			canvas.limpiar();
+			canvas.limpiar();			
 			this.ctx.drawImage(this.imagen, 10, 10);
+			this.ctx.drawImage(this.imagen, 250, 10);
 		},
-		filtro: function(tipo){
-			if(tipo == "oscurecer"){new Oscurecer(this);}
-			if(tipo == "aclarar"){new Aclarar(this)};
-			if(tipo == "grises"){new Grises(this)};
-			if(tipo == "negativo"){new Negativo(this)};
-			if(tipo == "flip"){new FlipHorizontal(this)};
+		filtro: function(params){
+			if(params.type == "oscurecer") new Oscurecer(this, params.level || 0);
+			else if(params.type == "aclarar") new Aclarar(this, params.level || 0);
+			else if(params.type == "grises") new Grises(this);
+			else if(params.type == "negativo") new Negativo(this, 100);
+			else if(params.type == "flip") new FlipHorizontal(this, 100);
+			else new Duplicate(this);
 		},
 		limpiar: function(){
 			var w = this.imagen.width;
@@ -66,21 +68,23 @@
 		this.imagenData = canvas.ctx.getImageData(10, 10, this.w, this.h);
 		this.data = this.imagenData.data;
 	}
-	function Oscurecer(canvas){
+	function Oscurecer(canvas,level){
+		var l = parseInt(level);
 		f = new Filtro(canvas);
 		for(var i=0; i<f.data.length; i+=4){
-			f.data[i] -= 100; //rojo
-			f.data[i+1] -= 100; //verde
-			f.data[i+2] -= 100; //azul
+			f.data[i] -= l; //rojo
+			f.data[i+1] -= l; //verde
+			f.data[i+2] -= l; //azul
 		}
 		canvas.dibujar(f.imagenData);
 	}
-	function Aclarar(canvas){
+	function Aclarar(canvas, level){
+		var l = parseInt(level);
 		f = new Filtro(canvas);
 		for(var i=0; i<f.data.length;i+=4){
-			f.data[i] += 100;
-			f.data[i+1] += 100;
-			f.data[i+2] += 100; 
+			f.data[i] += l;
+			f.data[i+1] += l;
+			f.data[i+2] += l; 
 		}
 		canvas.dibujar(f.imagenData);
 	}
@@ -126,9 +130,14 @@
 		}
 		canvas.dibujar(f.imagenData);
 	}
+	function Duplicate(canvas){
+		f = new Filtro(canvas);
+		canvas.dibujar(f.imagenData);
+	}
 	window.onload = function(){
 		var archivoSelect = document.getElementById("archivo");
 		var filtroSelect = document.getElementById("filtro");
+		var levelSelect = document.getElementById("level");
 		/*****************
 		EVENTOS
 		*****************/
@@ -136,7 +145,10 @@
 			canvas.cargar(archivoSelect.value);
 		}
 		filtroSelect.onchange = function(e){
-			canvas.filtro(filtroSelect.value);
+			canvas.filtro({type: filtroSelect.value});
+		}
+		levelSelect.onchange = function(e){
+			canvas.filtro({type: filtroSelect.value, level: levelSelect.value});
 		}
 		/*****************
 		CODIGO
@@ -157,6 +169,9 @@
 		Tu navegador no soporta CANVAS
 	</canvas>
 <div>
+	
+	<br><br>
+
 	<label>Imagen:</label> 
 	<select id="archivo">
 		<option value="">-archivo-</option>	
@@ -175,6 +190,14 @@
 		<option value="aclarar">Aclarar</option>	
 		<option value="oscurecer">Oscurecer</option>	
 		<option value="flip">Flip horizontal</option>	
+	</select>
+
+	<select id="level">
+		<option value="">-level-</option>	
+		<option value="60">Low</option>	
+		<option value="120">Normal</option>	
+		<option value="180">High</option>	
+		<option value="240">Hard</option>	
 	</select>
 </div>
 </body>

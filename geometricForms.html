@@ -39,7 +39,7 @@
 			},
 			dibujar: function(){
 				var i,ctx = this.context;
-				ctx.strokeStyle = this.color;
+				ctx.strokeStyle = this.color();
 				ctx.beginPath();
 				ctx.moveTo(this.puntos[0].x, this.puntos[0].y);
 				for(i=1; i<this.puntos.length; i++){
@@ -85,7 +85,7 @@
 			a = new Punto(this.generaX(), this.generaY());
 			b = new Punto(this.generaX(), this.generaY());
 			c = new Punto(this.generaX(), this.generaY());
-			this.puntos[a,b,c];
+			this.puntos = [a,b,c];
 		}
 		function Rectangulo(ladoA, ladoB){
 			var x,y;
@@ -132,6 +132,9 @@
 		window.onload = function(){
 			var forma = document.getElementById("forma");
 			forma.onchange = function(){
+				if(f.t!=null){
+					clearInterval(f.t);
+				}
 				f.inicio();
 				f.limpia();
 				f.t = setInterval(f.repite, 500, forma.value);
